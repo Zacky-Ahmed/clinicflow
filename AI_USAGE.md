@@ -26,3 +26,11 @@ These are AI-performed implementation/review steps. The applicant should review 
 Codex configured the user-authorized local .env and connected Atlas without committing credentials. Added the official driver adapter with BSON dates, indexes, pooled connections, transactional activity, and a shared clinic revision lock. Scoped write snapshots avoid rewriting unaffected appointments. The global clinic lock intentionally favors correctness over high write throughput.
 
 Validation: the existing 45 tests plus four opt-in Atlas integration tests passed. The Atlas tests cover independent-connection persistence, six simultaneous bookings, rollback, stale edits/deletes, cancellation slot reuse, and stored activity. The real HTTP smoke workflow passed against MongoDB in development and production mode. A separately saved fictional appointment was retrieved after stopping the development server and starting the production server, then cleaned up. Authentication and the final frontend remain future work.
+
+## Frontend phase — 2026-10-12
+
+Codex built the responsive receptionist workspace and original code-based SVG character animation: Flo checks a clipboard, blinks, and celebrates saved appointments. The ivory, forest, sage, and peach design includes a daily timeline, searchable appointment list, care-team cards, modal editing, status actions, availability suggestions, activity history, and explicit delete confirmation. Motion can be paused and respects system reduced-motion settings.
+
+Browser review created two fictional appointments, triggered an overlapping edit, selected an alternative slot, confirmed a visit, and checked search/filter behavior and mobile layout. The review exposed an origin-check mismatch between Next.js's normalized request URL and the browser's loopback host. The fix compares the Origin against the direct Host header; a regression test covers this case. Weekend closed periods are shown on the timeline. Test appointments are removed after verification.
+
+Verification: 46 tests, TypeScript, ESLint, and production compilation passed. Authentication and Raspberry Pi deployment remain pending. These are AI-performed checks; applicant review is still needed.

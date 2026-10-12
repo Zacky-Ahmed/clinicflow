@@ -2,11 +2,11 @@
 
 A receptionist-focused appointment manager that explains scheduling conflicts and suggests available alternatives. Built with **Next.js, TypeScript, and MongoDB**.
 
-## Current phase: backend foundation
+## Appointment workspace
 
 Implemented: create/view/edit/delete appointments, combined search and filters, pagination, appointment lifecycle, doctor conflict prevention, three next-slot suggestions, daily doctor timelines, attention flags, and appointment activity history.
 
-**MongoDB persistence is implemented.** Set MONGODB_URI and MONGODB_DB_NAME in ignored `.env`. The backend stores appointments and activity in separate collections using transactions. Without a URI, development falls back to temporary memory; production refuses to start appointment operations without database configuration. The homepage is a placeholder, not the receptionist interface. Authentication is still a later phase; keep this app on localhost until public-demo access controls are added. Use fictional information only.
+**MongoDB persistence is implemented.** Set MONGODB_URI and MONGODB_DB_NAME in ignored `.env`. The backend stores appointments and activity in separate collections using transactions. Without a URI, development falls back to temporary memory; production refuses to start appointment operations without database configuration. The responsive receptionist interface includes an original animated Flo character, doctor timelines, list and care-team views, appointment forms, conflict recovery, activity history, search, and filters. Animations can be paused and respect reduced-motion preferences. Authentication is still a later phase; keep this app on localhost until public-demo access controls are added. Use fictional information only.
 
 ## Run locally
 
@@ -50,6 +50,8 @@ src/repositories/    Storage contract, MongoDB adapter, and memory test adapter
 src/server/          Dependency wiring and HTTP error/body handling
 src/app/api/         Thin Next.js route handlers
 src/config/          Fictional doctor catalog
+src/components/      Dashboard, animated scene, and appointment dialog
+src/lib/             Typed browser API client
 tests/               Scheduling, concurrency, timezone, and HTTP tests
 docs/                API contract and database implementation plan
 ```
@@ -58,8 +60,7 @@ See [API documentation](docs/API.md), [MongoDB implementation](docs/MONGODB_PLAN
 
 ## Next phases
 
-1. Build the receptionist dashboard, timeline, forms, rescheduling choices, and loading/error states.
-2. Add the access model and request controls for a public demo, then deploy and verify ARM64 Docker on the Pi.
+Add the access model and request controls for a public demo, then deploy and verify ARM64 Docker on the Pi.
 
 The infrastructure handoff describes an existing production service. Deployment needs isolated resources and a verified free localhost port. Its documented 00:00–06:00 Asia/Colombo shutdown affects demo availability. No Pi or Cloudflare changes have been made.
 
@@ -70,3 +71,4 @@ The infrastructure handoff describes an existing production service. Deployment 
 - [Zod schemas](https://zod.dev/api)
 
 The lockfile records exact dependency resolution. Never commit `.env`, `.env.local`, credentials, patient information, or the private infrastructure handoff.
+

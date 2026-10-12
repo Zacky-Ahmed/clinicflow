@@ -103,4 +103,11 @@ describe("HTTP contract", () => {
     request.headers.set("origin", base);
     expect(await body(request)).toEqual(data);
   });
+
+  it("accepts the browser host when Next normalizes the request URL", async () => {
+    const request = req("/api/appointments", "POST", data);
+    request.headers.set("host", "127.0.0.1:3001");
+    request.headers.set("origin", "http://127.0.0.1:3001");
+    expect(await body(request)).toEqual(data);
+  });
 });
