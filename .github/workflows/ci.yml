@@ -20,6 +20,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+      - run: bash tests/pi-update.sh
       - run: npm audit --omit=dev --audit-level=high
   publish:
     needs: verify

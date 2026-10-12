@@ -34,3 +34,9 @@ Codex built the responsive receptionist workspace and original code-based SVG ch
 Browser review created two fictional appointments, triggered an overlapping edit, selected an alternative slot, confirmed a visit, and checked search/filter behavior and mobile layout. The review exposed an origin-check mismatch between Next.js's normalized request URL and the browser's loopback host. The fix compares the Origin against the direct Host header; a regression test covers this case. Weekend closed periods are shown on the timeline. Test appointments are removed after verification.
 
 Verification: 46 tests, TypeScript, ESLint, and production compilation passed. Authentication and Raspberry Pi deployment remain pending. These are AI-performed checks; applicant review is still needed.
+
+## Raspberry Pi delivery — 2026-10-12
+
+Read-only inspection confirmed ARM64, free host port 3001, adequate capacity, and healthy JobWire local/public endpoints. Added an isolated non-root Docker image, runtime resource/log limits, and GitHub checks before native ARM64 GHCR publication. Installed a dedicated five-minute user cron entry to pull approved main images with digest pinning and health-based rollback. The existing nightly shutdown is retained. MongoDB configuration stays only in a mode-600 Pi environment file.
+
+Added an explicit APP_ORIGIN setting for HTTPS reverse proxies and a regression test (47 application tests pass). Bash tests with mocked Docker/curl cover updater activation, unchanged releases, rollback, known-bad suppression, JobWire guard, initial failure, and pause; these passed on the Pi without touching real containers. Real image activation and rollback are separate from these mocked tests. The first manual Pi image download was stopped in favor of the requested GitHub build pipeline. Public routing is pending.
