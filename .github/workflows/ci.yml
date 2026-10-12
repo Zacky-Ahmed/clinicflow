@@ -1,8 +1,12 @@
-name: Backend checks
+name: ClinicFlow CI and image release
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+concurrency:
+  group: clinicflow-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -17,3 +21,27 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm audit --omit=dev --audit-level=high
+  publish:
+    needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and publish ARM64 release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_ACTOR: ${{ github.actor }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          image=ghcr.io/zacky-ahmed/clinicflow
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
+          docker build --platform linux/arm64 \
+            --label org.opencontainers.image.source=https://github.com/Zacky-Ahmed/clinicflow \
+            --label org.opencontainers.image.revision="$RELEASE_SHA" \
+            -t "$image:$RELEASE_SHA" -t "$image:main" .
+          docker push "$image:$RELEASE_SHA"
+          docker push "$image:main"

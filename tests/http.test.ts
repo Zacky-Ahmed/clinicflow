@@ -110,4 +110,14 @@ describe("HTTP contract", () => {
     request.headers.set("origin", "http://127.0.0.1:3001");
     expect(await body(request)).toEqual(data);
   });
+
+  it("accepts only the configured HTTPS origin behind a tunnel", async () => {
+    vi.stubEnv("APP_ORIGIN", "https://clinic.example.test");
+    const request = req("/api/appointments", "POST", data);
+    request.headers.set("origin", "https://clinic.example.test");
+    expect(await body(request)).toEqual(data);
+    request.headers.set("origin", "https://untrusted.example");
+    request.headers.set("x-forwarded-host", "untrusted.example");
+    await expect(body(request)).rejects.toMatchObject({ code: "ORIGIN_NOT_ALLOWED" });
+  });
 });

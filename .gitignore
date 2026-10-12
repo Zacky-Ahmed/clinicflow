@@ -148,3 +148,10 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+# Pi deployment state (no runtime configuration in source control)
+.release.env*
+.previous-image
+.failed-image
+.deploy.lock
+.deploy-paused
+source.tar.gz

@@ -29,7 +29,7 @@ export function checkOrigin(request: Request) {
   const url = new URL(request.url);
   // Next.js can normalize request.url to localhost even when the browser uses
   // 127.0.0.1. Compare against the actual Host header, not proxy-forwarded input.
-  const expectedOrigin = `${url.protocol}//${request.headers.get("host") || url.host}`;
+  const expectedOrigin = process.env.APP_ORIGIN || `${url.protocol}//${request.headers.get("host") || url.host}`;
   if (origin && origin !== expectedOrigin) {
     throw new AppError("ORIGIN_NOT_ALLOWED", "Cross-origin writes are not allowed", 403);
   }
