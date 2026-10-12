@@ -1,13 +1,15 @@
 import type { Activity, Appointment } from "@/domain/models";
 
 export interface AppointmentSnapshot { appointments: Appointment[]; activity: Activity[] }
+export interface RepositoryScope { id?: string; doctorIds?: string[]; activityId?: string }
 
 /**
  * A write callback must atomically check and modify a consistent snapshot.
  * Adapters must roll back on failure and serialize conflicting doctor bookings.
- * MongoDB will need transaction + doctor-lock/version semantics, not find-then-insert.
+ * Scope limits loaded records. Writes must serialize conflicting bookings across processes.
  */
 export interface AppointmentRepository {
-  read(): Promise<AppointmentSnapshot>;
-  write<T>(operation: (state: AppointmentSnapshot) => T): Promise<T>;
+  read(scope?: RepositoryScope): Promise<AppointmentSnapshot>;
+  write<T>(operation: (state: AppointmentSnapshot) => T, scope?: RepositoryScope): Promise<T>;
+  ready?(): Promise<void>;
 }

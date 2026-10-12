@@ -18,6 +18,8 @@ export class AppointmentService {
     private readonly clock: () => Date = () => new Date(),
   ) { validateZone(timezone); }
 
+  async ready() { await this.repository.ready?.(); }
+
   private doctor(id: string) {
     const doctor = this.doctors.find((d) => d.id === id);
     if (!doctor) throw new AppError("DOCTOR_NOT_FOUND", "Doctor does not exist", 404);
@@ -66,14 +68,15 @@ export class AppointmentService {
       state.activity.push({ id: randomUUID(), appointmentId: appointment.id, action: "created",
         at: now.toISOString(), version: 1, changedFields: [], toStatus: appointment.status });
       return appointment;
-    });
+    }, { doctorIds: [input.doctorId] });
   }
 
-  async get(id: string) { idSchema.parse(id); return this.find(await this.repository.read(), id); }
+  async get(id: string) { idSchema.parse(id); return this.find(await this.repository.read({ id }), id); }
 
   async update(id: string, raw: unknown) {
     idSchema.parse(id);
     const input = updateSchema.parse(raw);
+    const existing = await this.get(id);
     return this.repository.write((state) => {
       const current = this.find(state, id);
       this.version(current, input.expectedVersion);
@@ -103,7 +106,7 @@ export class AppointmentService {
       state.activity.push({ id: randomUUID(), appointmentId: id, action: "updated", at: next.updatedAt,
         version: next.version, changedFields, fromStatus: current.status, toStatus: next.status });
       return next;
-    });
+    }, { id, doctorIds: [input.doctorId ?? existing.doctorId] });
   }
 
   async changeStatus(id: string, raw: unknown) {
@@ -131,7 +134,7 @@ export class AppointmentService {
       state.activity.push({ id: randomUUID(), appointmentId: id, action: "status_changed", at: appointment.updatedAt,
         version: appointment.version, changedFields: ["status"], fromStatus: previous, toStatus: input.status });
       return appointment;
-    });
+    }, { id });
   }
 
   async delete(id: string, expectedVersion: number) {
@@ -144,7 +147,7 @@ export class AppointmentService {
       state.appointments = state.appointments.filter((a) => a.id !== id);
       state.activity.push({ id: randomUUID(), appointmentId: id, action: "deleted", at: this.clock().toISOString(),
         version: appointment.version + 1, changedFields: [] });
-    });
+    }, { id });
   }
 
   async list(raw: unknown) {
@@ -169,7 +172,7 @@ export class AppointmentService {
   async slots(raw: unknown) {
     const input = slotSchema.parse(raw);
     this.doctor(input.doctorId);
-    const state = await this.repository.read();
+    const state = await this.repository.read({ id: input.excludeAppointmentId, doctorIds: [input.doctorId] });
     if (input.excludeAppointmentId) this.find(state, input.excludeAppointmentId);
     return { slots: suggestSlots(state.appointments, input.doctorId, input.from, input.durationMinutes,
       this.timezone, this.clock(), input.excludeAppointmentId), timezone: this.timezone, searchDays: 14 };
@@ -177,7 +180,7 @@ export class AppointmentService {
 
   async activity(id: string) {
     idSchema.parse(id);
-    const state = await this.repository.read();
+    const state = await this.repository.read({ id, activityId: id });
     const events = state.activity.filter((event) => event.appointmentId === id);
     if (!events.length) this.find(state, id);
     return events.slice(-50).reverse();

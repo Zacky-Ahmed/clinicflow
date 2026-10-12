@@ -22,6 +22,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date("2026-10-12T02:00:00Z"));
   vi.stubEnv("CLINIC_TIMEZONE", "Asia/Colombo");
+  vi.stubEnv("MONGODB_URI", "");
   delete (globalThis as typeof globalThis & { clinicflowService?: AppointmentService }).clinicflowService;
 });
 afterEach(() => { vi.useRealTimers(); vi.unstubAllEnvs(); });

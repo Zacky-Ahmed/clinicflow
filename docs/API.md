@@ -1,6 +1,6 @@
 # API contract — backend phase
 
-Base URL: `http://127.0.0.1:3001/api`. No authentication in this **localhost-only development phase**. Production appointment APIs are disabled until MongoDB is implemented. All examples use fictional information.
+Base URL: `http://127.0.0.1:3001/api`. No authentication in this **localhost-only phase**. With MONGODB_URI configured, appointment APIs use durable MongoDB storage, including in a production build. Do not expose publicly until access controls are implemented. All examples use fictional information.
 
 Success: `{ "data": ... }`. Error: `{ "error": { "code", "message", "requestId", "details"? } }`. Validation errors return field paths/messages. JSON bodies are capped at 16 KB. Unknown fields, duplicate query parameters, invalid IDs, and timezone-free timestamps are rejected. Cross-origin writes are rejected when an Origin header is present; this is not authentication.
 
@@ -16,8 +16,8 @@ Success: `{ "data": ... }`. Error: `{ "error": { "code", "message", "requestId",
 | GET | `/appointments/:id/activity` | Latest 50 events, newest first; accessible after deletion |
 | GET | `/availability` | Up to three available slots |
 | GET | `/dashboard?date=YYYY-MM-DD` | Daily counts, attention flags and doctor timelines |
-| GET | `/health` | Liveness; explicitly reports temporary storage |
-| GET | `/ready` | Development readiness; 503 in production |
+| GET | `/health` | Process liveness and configured storage mode; does not ping the database |
+| GET | `/ready` | Checks MongoDB connection/index initialization; 503 if unavailable or production is unconfigured |
 
 ## Create
 
@@ -70,6 +70,6 @@ Use URLSearchParams to encode timestamps (a literal + must be %2B). Optional exc
 
 SCHEDULE_CONFLICT returns 409 with details.conflicts (IDs/time ranges) and details.suggestions (up to three slots). Patient names are omitted from conflict details. Submit the user's chosen alternative through normal create/edit; another booking may have taken it meanwhile.
 
-Activity records action, timestamp, version, changed field names, and status transitions. It omits old/new patient names. This is a development history, not a durable compliance audit trail: it resets with memory storage and has no authenticated actor yet.
+Activity records action, timestamp, version, changed field names, and status transitions. MongoDB writes events atomically with appointment changes. It omits old/new patient names and has no authenticated actor yet, so it is an operational history rather than a compliance audit trail. Memory-mode history is temporary.
 
 The dashboard groups appointments by doctor with status counts and derived needsAttention entries. It does not move appointments, notify patients, or infer medical urgency.

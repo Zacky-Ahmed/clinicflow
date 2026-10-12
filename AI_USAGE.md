@@ -20,3 +20,9 @@ Tool: OpenAI Codex. The user selected the product concept, MongoDB, public repos
 `npm run check` runs types, lint, tests, and compilation. `npm run test:smoke` exercises real HTTP against the local development server and cleans up its fictional appointment. GitHub Actions runs standard checks on pushes/pull requests.
 
 These are AI-performed implementation/review steps. The applicant should review the code, run the demo, and add their own findings before submission. Do not represent AI review as independent human review.
+
+## MongoDB integration — 2026-10-12
+
+Codex configured the user-authorized local .env and connected Atlas without committing credentials. Added the official driver adapter with BSON dates, indexes, pooled connections, transactional activity, and a shared clinic revision lock. Scoped write snapshots avoid rewriting unaffected appointments. The global clinic lock intentionally favors correctness over high write throughput.
+
+Validation: the existing 45 tests plus four opt-in Atlas integration tests passed. The Atlas tests cover independent-connection persistence, six simultaneous bookings, rollback, stale edits/deletes, cancellation slot reuse, and stored activity. The real HTTP smoke workflow passed against MongoDB in development and production mode. A separately saved fictional appointment was retrieved after stopping the development server and starting the production server, then cleaned up. Authentication and the final frontend remain future work.

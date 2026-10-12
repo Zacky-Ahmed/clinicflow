@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:smoke": "node scripts/smoke.mjs",
+    "test:mongo": "node --env-file=.env node_modules/vitest/vitest.mjs run --config vitest.mongo.config.ts",
     "check": "npm run typecheck && npm run lint && npm test && npm run build"
   },
   "engines": {
@@ -19,6 +20,7 @@
   },
   "dependencies": {
     "luxon": "^3.7.2",
+    "mongodb": "^7.7.0",
     "next": "^16.4.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
